@@ -1,20 +1,14 @@
 package com.gabriel.ifood.api;
 
+import com.gabriel.ifood.domain.model.Prato;
 import com.gabriel.ifood.domain.model.Restaurante;
 import com.gabriel.ifood.domain.repository.RestauranteRepository;
 import com.gabriel.ifood.service.RestauranteService;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpStatusClass;
-import org.jboss.resteasy.annotations.Status;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
 import java.util.List;
 
 @Path("/restaurantes")
@@ -34,15 +28,14 @@ public class RestauranteResource {
     }
 
     @GET
-    @Path("/{id}")
-    public Restaurante buscar(@PathParam("id") Long id){
+    @Path("/{restauranteId}")
+    public Restaurante buscar(@PathParam("restauranteId") Long id){
 
-        return restauranteService.buscarOuFalhar(id);
+        return restauranteService.buscarOuFalharRestaurante(id);
 
     }
 
     @POST
-    @Transactional
     public Response adicionar(Restaurante dto){
 
         var restauranteSalvo = restauranteService.adicionar(dto);
@@ -52,22 +45,57 @@ public class RestauranteResource {
     }
 
     @PUT
-    @Path("/{id}")
-    @Transactional
-    public Response atualizar(@PathParam("id") Long id,Restaurante dto){
+    @Path("/{restauranteId}")
+    public Response atualizar(@PathParam("restauranteId") Long id,Restaurante dto){
 
         return Response.ok(restauranteService.atualizar(id, dto)).build();
 
     }
 
     @DELETE
-    @Path("/{id}")
-    @Transactional
-    public void deletar(@PathParam("id") Long id){
+    @Path("/{restauranteId}")
+    public void deletar(@PathParam("restauranteId") Long id){
 
         restauranteService.deletar(id);
 
     }
 
+    @GET
+    @Path("/{restauranteId}/pratos")
+    public List<Prato> buscarPratos(@PathParam("restauranteId") Long id){
+
+        return restauranteService.buscarPratos(id);
+    }
+
+    @POST
+    @Path("/{restauranteId}/pratos")
+    public Response adicionarPrato(@PathParam("restauranteId") Long id, Prato dto){
+
+       var pratoSalvo  = restauranteService.adicionarPrato(id, dto);
+
+       return Response.status(Response.Status.CREATED).entity(pratoSalvo).build();
+
+    }
+
+    @PUT
+    @Path("/{restauranteId}/pratos/{idPrato}")
+    public Response atualizarPrato (@PathParam("restauranteId") Long idRestaurante,
+                                @PathParam("idPrato") Long idPrato,
+                                Prato dto){
+
+    var prato = restauranteService.atualizarPrato(idRestaurante,idPrato,dto);
+
+    return Response.status(Response.Status.OK).entity(prato).build();
+
+    }
+
+    @DELETE
+    @Path("/{restauranteId}/pratos/{idPrato}")
+    public void deletePrato(@PathParam("restauranteId") Long idRestaurante,
+                            @PathParam("idPrato") Long idPrato){
+
+      restauranteService.deletePrato(idRestaurante,idPrato);
+
+    }
 
 }
